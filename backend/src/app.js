@@ -1,4 +1,4 @@
-// src/app.js - Servidor Principal Express (CORREGIDO)
+// src/app.js - Servidor Principal Express (FASE 4 - LIMPIO)
 // Sistema de Tracking Vehicular - Agregados Zambrana
 
 require("dotenv").config();
@@ -7,12 +7,26 @@ const cors = require("cors");
 const { connectDB, pool } = require("./config/database");
 const logger = require("./utils/logger");
 
+// Middlewares de manejo de errores
+const {
+  errorHandler,
+  notFoundHandler,
+  generateRequestId,
+  requestLogger,
+} = require("./middleware/errorHandler");
+
+// Helper de respuestas
+const { addResponseHelpers } = require("./utils/responseHelper");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ==========================================
 // MIDDLEWARES BÁSICOS
 // ==========================================
+
+// Generar ID único por request
+app.use(generateRequestId);
 
 // CORS para desarrollo
 app.use(
@@ -24,110 +38,63 @@ app.use(
 );
 
 // Parser para JSON
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Logging de requests
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path} - IP: ${req.ip}`);
-  next();
-});
+app.use(requestLogger);
+
+// Agregar helpers de respuesta
+app.use(addResponseHelpers);
 
 // ==========================================
-// RUTAS DE PRUEBA - FASE 1
+// RUTAS PRINCIPALES
 // ==========================================
 
-// Ruta básica de health check
-app.get("/api/health", async (req, res) => {
-  try {
-    // Verificar conexión a base de datos
-    const result = await pool.query("SELECT NOW() as timestamp, version()");
+// Autenticación (Fase 3)
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
 
-    res.json({
-      status: "OK",
-      database: "connected",
-      timestamp: result.rows[0].timestamp,
-      server_time: new Date().toISOString(),
-      node_env: process.env.NODE_ENV,
-    });
+// Materiales (Fase 4)
+const materialesRoutes = require("./routes/materiales");
+app.use("/api/materiales", materialesRoutes);
 
-    logger.info("Health check exitoso");
-  } catch (error) {
-    logger.error("Error en health check:", error.message);
+// Stock (Fase 4)
+const stockRoutes = require("./routes/stock");
+app.use("/api/stock", stockRoutes);
 
-    res.status(500).json({
-      status: "ERROR",
-      database: "disconnected",
-      error: error.message,
-      timestamp: new Date().toISOString(),
-    });
-  }
-});
+// Pedidos (Fase 5)
+const pedidosRoutes = require("./routes/pedidos");
+app.use("/api/pedidos", pedidosRoutes);
 
-// Ruta adicional para verificar tablas de la BD
-app.get("/api/health/db", async (req, res) => {
-  try {
-    // Contar tablas en la base de datos
-    const tablesQuery = `
-            SELECT COUNT(*) as table_count 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public'
-        `;
-
-    // Contar usuarios registrados
-    const usersQuery = "SELECT COUNT(*) as user_count FROM usuarios";
-
-    const [tablesResult, usersResult] = await Promise.all([
-      pool.query(tablesQuery),
-      pool.query(usersQuery),
-    ]);
-
-    res.json({
-      status: "OK",
-      database: "connected",
-      tables_count: parseInt(tablesResult.rows[0].table_count),
-      users_count: parseInt(usersResult.rows[0].user_count),
-      timestamp: new Date().toISOString(),
-    });
-
-    logger.info("Database health check exitoso");
-  } catch (error) {
-    logger.error("Error en database health check:", error.message);
-
-    res.status(500).json({
-      status: "ERROR",
-      database: "error",
-      error: error.message,
-      timestamp: new Date().toISOString(),
-    });
-  }
-});
-
-// ==========================================
-// MANEJO DE ERRORES BÁSICO
-// ==========================================
-
-// Ruta no encontrada (CORREGIDO - sin '*')
-app.use((req, res, next) => {
-  logger.warn(`Ruta no encontrada: ${req.method} ${req.originalUrl}`);
-
-  res.status(404).json({
-    error: "Ruta no encontrada",
-    path: req.originalUrl,
-    method: req.method,
+// Status básico (solo desarrollo)
+if (process.env.NODE_ENV === "development") {
+  app.get("/api/status", async (req, res) => {
+    try {
+      const result = await pool.query("SELECT NOW() as timestamp");
+      res.json({
+        status: "OK",
+        database: "connected",
+        timestamp: result.rows[0].timestamp,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "ERROR",
+        database: "disconnected",
+      });
+    }
   });
-});
+}
+
+// ==========================================
+// MANEJO DE ERRORES
+// ==========================================
+
+// Manejar rutas no encontradas
+app.use(notFoundHandler);
 
 // Manejo de errores global
-app.use((error, req, res, next) => {
-  logger.error("Error no manejado:", error.message);
-
-  res.status(500).json({
-    error: "Error interno del servidor",
-    message:
-      process.env.NODE_ENV === "development" ? error.message : "Error interno",
-  });
-});
+app.use(errorHandler);
 
 // ==========================================
 // INICIALIZACIÓN DEL SERVIDOR
@@ -138,15 +105,27 @@ const startServer = async () => {
     // Conectar a la base de datos
     await connectDB();
 
+    // Validar variables de entorno críticas en producción
+    if (process.env.NODE_ENV === "production") {
+      if (!process.env.JWT_SECRET) {
+        logger.error("JWT_SECRET no configurado en producción");
+        process.exit(1);
+      }
+      if (!process.env.DB_PASSWORD) {
+        logger.error("DB_PASSWORD no configurado en producción");
+        process.exit(1);
+      }
+    }
+
     // Iniciar servidor
     app.listen(PORT, () => {
-      logger.info(`🚀 Servidor iniciado exitosamente`);
-      logger.info(`📍 Puerto: ${PORT}`);
-      logger.info(`🌍 Entorno: ${process.env.NODE_ENV}`);
-      logger.info(`🔗 Health check: http://localhost:${PORT}/api/health`);
-      console.log(`\n=== SERVIDOR LISTO ===`);
-      console.log(`URL: http://localhost:${PORT}/api/health`);
-      console.log(`======================\n`);
+      logger.info(`Servidor iniciado en puerto ${PORT}`);
+      logger.info(`Entorno: ${process.env.NODE_ENV}`);
+
+      // Info mínima solo en desarrollo
+      if (process.env.NODE_ENV === "development") {
+        console.log(`\nServidor: http://localhost:${PORT}/api`);
+      }
     });
   } catch (error) {
     logger.error("Error al iniciar servidor:", error.message);
@@ -154,20 +133,42 @@ const startServer = async () => {
   }
 };
 
-// Manejo de cierre graceful
-process.on("SIGTERM", async () => {
-  logger.info("Cerrando servidor...");
-  await pool.end();
-  process.exit(0);
+// ==========================================
+// MANEJO DE CIERRE GRACEFUL
+// ==========================================
+
+const gracefulShutdown = async (signal) => {
+  logger.info(`Cerrando servidor (${signal})`);
+
+  try {
+    await pool.end();
+    logger.info("Servidor cerrado correctamente");
+    process.exit(0);
+  } catch (error) {
+    logger.error("Error durante cierre:", error.message);
+    process.exit(1);
+  }
+};
+
+// Manejar señales de cierre
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+// Manejar errores no capturados
+process.on("uncaughtException", (error) => {
+  logger.error("Excepción no capturada:", error);
+  gracefulShutdown("UNCAUGHT_EXCEPTION");
 });
 
-process.on("SIGINT", async () => {
-  logger.info("Cerrando servidor por SIGINT...");
-  await pool.end();
-  process.exit(0);
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Promesa rechazada no manejada:", { reason });
+  gracefulShutdown("UNHANDLED_REJECTION");
 });
 
-// Inicializar
+// ==========================================
+// INICIALIZAR
+// ==========================================
+
 startServer();
 
 module.exports = app;

@@ -1,4 +1,4 @@
-// src/config/queries.js - Queries SQL Organizadas por Entidad
+// src/config/queries.js - Queries SQL Organizadas por Entidad (FIXED)
 // Sistema de Tracking Vehicular - Agregados Zambrana
 // NOTA: Usamos las funciones y vistas optimizadas que creamos en PostgreSQL
 
@@ -21,9 +21,16 @@ const USUARIOS_QUERIES = {
         RETURNING id, email, rol, nombre, apellido, telefono, created_at
     `,
 
-  // Obtener perfil completo por ID
+  // Obtener perfil completo por ID (sin password por seguridad)
   FIND_BY_ID: `
         SELECT id, email, rol, nombre, apellido, telefono, activo, created_at, updated_at
+        FROM usuarios 
+        WHERE id = $1 AND activo = true
+    `,
+
+  // Obtener usuario con password (solo para operaciones de cambio de contraseña)
+  FIND_BY_ID_WITH_PASSWORD: `
+        SELECT id, email, password, rol, nombre, apellido, telefono, activo, created_at, updated_at
         FROM usuarios 
         WHERE id = $1 AND activo = true
     `,

@@ -344,7 +344,9 @@ class Usuario {
       }
 
       // Buscar usuario con contraseña
-      const user = await query(USUARIOS.FIND_BY_ID, [idValidation.value]);
+      const user = await query(USUARIOS.FIND_BY_ID_WITH_PASSWORD, [
+        idValidation.value,
+      ]);
       if (!user.rows.length) {
         throw new NotFoundError("Usuario no encontrado");
       }

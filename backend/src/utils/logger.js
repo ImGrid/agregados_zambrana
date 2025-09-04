@@ -191,32 +191,6 @@ logger.setLevel = (level) => {
   }
 };
 
-/**
- * Log de inicio de aplicación
- */
-logger.startup = () => {
-  logger.info("=".repeat(50));
-  logger.info("🚀 SISTEMA DE TRACKING VEHICULAR");
-  logger.info("📦 Agregados Zambrana Backend");
-  logger.info(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
-  logger.info(`📊 Nivel de log: ${LOG_LEVEL}`);
-  logger.info(
-    `💾 Log a archivo: ${LOG_TO_FILE ? "Habilitado" : "Deshabilitado"}`
-  );
-  logger.info("=".repeat(50));
-};
-
-/**
- * Log de cierre de aplicación
- */
-logger.shutdown = () => {
-  logger.info("=".repeat(50));
-  logger.info("🔻 Cerrando aplicación...");
-  logger.info(`⏰ Tiempo de ejecución finalizado: ${getTimestamp()}`);
-  logger.info("👋 Hasta luego!");
-  logger.info("=".repeat(50));
-};
-
 // ==========================================
 // MANEJO DE ERRORES NO CAPTURADOS
 // ==========================================
