@@ -1,4 +1,4 @@
-// src/models/Pedido.js - Model de Pedido (Core del Negocio)
+// src/models/Pedido.js - Model de Pedido COMPLETO CORREGIDO
 // Sistema de Tracking Vehicular - Agregados Zambrana
 
 const { query } = require("../config/database");
@@ -8,6 +8,7 @@ const {
   validateId,
   validateQuantity,
 } = require("../utils/validation");
+const { generateUniqueTrackingCode } = require("../utils/codigoSeguimiento");
 const {
   ValidationError,
   NotFoundError,
@@ -66,7 +67,7 @@ class Pedido {
     });
 
     try {
-      // Validar datos del pedido
+      // Validar datos del pedido - USA FUNCIÓN CENTRALIZADA
       const validation = validateOrderData(orderData);
       if (!validation.isValid) {
         throw new ValidationError(
@@ -77,7 +78,7 @@ class Pedido {
 
       const validData = validation.validData;
 
-      // Validar que el cliente existe
+      // Validar que el cliente existe - USA FUNCIÓN CENTRALIZADA
       const clienteValidation = validateId(clienteId, "ID de cliente");
       if (!clienteValidation.isValid) {
         throw new ValidationError("ID de cliente inválido");
@@ -104,21 +105,25 @@ class Pedido {
         );
       }
 
+      // GENERAR CÓDIGO SIMPLIFICADO
+      const codigoSeguimiento = await generateUniqueTrackingCode();
+
       // Calcular precio total
       const precioTotal = validData.cantidad * material.precio_por_unidad;
 
-      // Crear el pedido
+      // Crear el pedido - INSERTAR CÓDIGO MANUALMENTE
       const result = await query(PEDIDOS.CREATE, [
-        clienteValidation.value, // cliente_id
-        validData.material_id,
-        validData.cantidad,
-        precioTotal,
-        validData.direccion_entrega,
-        validData.direccion_lat,
-        validData.direccion_lng,
-        validData.telefono_contacto,
-        validData.fecha_entrega_solicitada,
-        orderData.observaciones || null,
+        codigoSeguimiento, // $1 - código generado
+        clienteValidation.value, // $2 - cliente_id
+        validData.material_id, // $3
+        validData.cantidad, // $4
+        precioTotal, // $5
+        validData.direccion_entrega, // $6
+        validData.direccion_lat, // $7
+        validData.direccion_lng, // $8
+        validData.telefono_contacto, // $9
+        validData.fecha_entrega_solicitada, // $10
+        orderData.observaciones || null, // $11
       ]);
 
       const newPedido = result.rows[0];
@@ -137,11 +142,11 @@ class Pedido {
   }
 
   // ==========================================
-  // MÉTODOS DE BÚSQUEDA
+  // MÉTODOS DE BÚSQUEDA - SOLUCIÓN DEFINITIVA SIN NULL
   // ==========================================
 
   /**
-   * Obtener pedidos con información completa (usa vista optimizada)
+   * Obtener pedidos con información completa - CORREGIDO SIN PARÁMETROS NULL
    * @param {Object} filters - Filtros de búsqueda
    * @param {number} limit - Límite de resultados
    * @param {number} offset - Offset para paginación
@@ -149,17 +154,54 @@ class Pedido {
    */
   static async findWithDetails(filters = {}, limit = 50, offset = 0) {
     try {
-      const estado = filters.estado || null;
+      // SOLUCIÓN: Usar queries diferentes según si hay filtro o no
+      const estado =
+        filters.estado &&
+        filters.estado !== "undefined" &&
+        filters.estado !== ""
+          ? filters.estado.trim()
+          : null;
 
-      const result = await query(PEDIDOS.LIST_COMPLETE, [
+      logger.debug("Ejecutando findWithDetails con parámetros", {
         estado,
         limit,
         offset,
-      ]);
+        filters,
+      });
+
+      let result;
+
+      if (estado) {
+        // Si hay estado, usar query con filtro específico
+        logger.debug("Usando query con filtro de estado");
+        result = await query(PEDIDOS.LIST_BY_ESTADO, [
+          estado, // $1 - estado específico (nunca null)
+          limit, // $2
+          offset, // $3
+        ]);
+      } else {
+        // Si no hay estado, usar query sin filtro
+        logger.debug("Usando query sin filtro de estado");
+        result = await query(PEDIDOS.LIST_ALL, [
+          limit, // $1
+          offset, // $2
+        ]);
+      }
+
+      logger.debug("Query ejecutada exitosamente", {
+        rowCount: result.rows.length,
+        estado,
+        usedFilter: !!estado,
+      });
 
       return result.rows;
     } catch (error) {
       logger.error("Error obteniendo pedidos con detalles:", error.message);
+      logger.error("Parámetros que causaron error:", {
+        estado: filters.estado,
+        limit,
+        offset,
+      });
       throw error;
     }
   }
@@ -302,11 +344,6 @@ class Pedido {
         estadoAnterior: pedidoActual.estado,
         estadoNuevo: updatedPedido.estado,
       });
-
-      // TODO: Aquí se podrían agregar efectos secundarios según el estado:
-      // - Si se confirma: reducir stock
-      // - Si se asigna: asignar vehículo
-      // - Si se entrega: actualizar métricas
 
       return updatedPedido;
     } catch (error) {

@@ -101,53 +101,52 @@ const updateStock = asyncHandler(async (req, res) => {
   const { cantidad_disponible } = req.body;
   const userId = req.user.id;
 
-  logger.info("Actualizando stock", {
+  logger.info("Actualizando stock:", {
     materialId: material_id,
     nuevaCantidad: cantidad_disponible,
     userId,
   });
 
-  // Validar cantidad
-  if (cantidad_disponible === undefined || cantidad_disponible === null) {
-    return validationError(
-      res,
-      [
-        {
-          field: "cantidad_disponible",
-          message: "Cantidad disponible es requerida",
-        },
-      ],
-      "Cantidad no proporcionada"
-    );
+  // VALIDACIÓN SIMPLIFICADA - usar funciones centralizadas
+  const materialIdValidation = validateId(material_id, "ID de material");
+  const quantityValidation = validateQuantity(cantidad_disponible);
+  const userIdValidation = validateId(userId, "ID de usuario");
+
+  const errors = [];
+  if (!materialIdValidation.isValid) {
+    errors.push({
+      field: "material_id",
+      message: materialIdValidation.message,
+    });
+  }
+  if (!quantityValidation.isValid) {
+    errors.push({
+      field: "cantidad_disponible",
+      message: quantityValidation.message,
+    });
+  }
+  if (!userIdValidation.isValid) {
+    errors.push({ field: "user_id", message: userIdValidation.message });
   }
 
-  const quantityValidation = validateQuantity(cantidad_disponible);
-  if (!quantityValidation.isValid) {
-    return validationError(
-      res,
-      [{ field: "cantidad_disponible", message: quantityValidation.message }],
-      "Cantidad inválida"
-    );
+  if (errors.length > 0) {
+    return validationError(res, errors, "Datos inválidos");
   }
 
   try {
     const updatedStock = await Stock.updateQuantity(
-      material_id,
+      materialIdValidation.value,
       quantityValidation.value,
-      userId
+      userIdValidation.value
     );
 
     logger.info("Stock actualizado exitosamente", {
       materialId: material_id,
-      cantidadAnterior: updatedStock.cambio_cantidad
-        ? updatedStock.cantidad_disponible - updatedStock.cambio_cantidad
-        : "N/A",
       cantidadNueva: updatedStock.cantidad_disponible,
       nivelStock: updatedStock.nivel_stock,
       userId,
     });
 
-    // Usar helper específico para respuestas de stock
     return stockUpdated(
       res,
       {
@@ -242,25 +241,32 @@ const checkStockAvailability = asyncHandler(async (req, res) => {
     userId,
   });
 
-  // Validar datos requeridos
-  if (!material_id || !cantidad_requerida) {
-    return validationError(
-      res,
-      [
-        { field: "material_id", message: "ID de material es requerido" },
-        {
-          field: "cantidad_requerida",
-          message: "Cantidad requerida es requerida",
-        },
-      ],
-      "Datos incompletos"
-    );
+  // VALIDACIÓN SIMPLIFICADA - usar funciones centralizadas
+  const materialIdValidation = validateId(material_id, "ID de material");
+  const quantityValidation = validateQuantity(cantidad_requerida);
+
+  const errors = [];
+  if (!materialIdValidation.isValid) {
+    errors.push({
+      field: "material_id",
+      message: materialIdValidation.message,
+    });
+  }
+  if (!quantityValidation.isValid) {
+    errors.push({
+      field: "cantidad_requerida",
+      message: quantityValidation.message,
+    });
+  }
+
+  if (errors.length > 0) {
+    return validationError(res, errors, "Datos incompletos");
   }
 
   try {
     const availability = await Stock.checkAvailability(
-      material_id,
-      cantidad_requerida
+      materialIdValidation.value,
+      quantityValidation.value
     );
 
     const responseData = {

@@ -1,4 +1,4 @@
-// src/controllers/pedidosController.js - Controller de Pedidos
+// src/controllers/pedidosController.js - Controller de Pedidos LIMPIO
 // Sistema de Tracking Vehicular - Agregados Zambrana
 
 const Pedido = require("../models/Pedido");
@@ -10,6 +10,7 @@ const {
   generateUniqueTrackingCode,
   normalizeTrackingCodeForSearch,
 } = require("../utils/codigoSeguimiento");
+const { validateOrderData, validateId } = require("../utils/validation");
 const {
   success,
   created,
@@ -49,29 +50,19 @@ const createPedido = asyncHandler(async (req, res) => {
     userId: req.user.id,
   });
 
-  // Validar datos básicos requeridos
-  if (
-    !orderData.material_id ||
-    !orderData.cantidad ||
-    !orderData.direccion_entrega
-  ) {
+  // ÚNICA validación: usar función centralizada
+  const validation = validateOrderData(orderData);
+  if (!validation.isValid) {
     return validationError(
       res,
-      [
-        { field: "material_id", message: "Material es requerido" },
-        { field: "cantidad", message: "Cantidad es requerida" },
-        {
-          field: "direccion_entrega",
-          message: "Dirección de entrega es requerida",
-        },
-      ],
-      "Datos incompletos del pedido"
+      validation.errors,
+      "Datos del pedido inválidos"
     );
   }
 
   try {
-    // Crear pedido usando el model que ya valida todo
-    const newPedido = await Pedido.create(orderData, clienteId);
+    // Crear pedido usando el model que ya valida todo internamente
+    const newPedido = await Pedido.create(validation.validData, clienteId);
 
     logger.info("Pedido creado exitosamente", {
       pedidoId: newPedido.id,
@@ -140,7 +131,7 @@ const trackPedido = asyncHandler(async (req, res) => {
   const codigo = normalizeTrackingCodeForSearch(req.params.codigo);
 
   logger.info("Seguimiento de pedido por código", {
-    codigo: codigo.substring(0, 10) + "...",
+    codigo: codigo.substring(0, 6) + "...",
     ip: req.ip,
   });
 
@@ -235,6 +226,14 @@ const changeEstado = asyncHandler(async (req, res) => {
     rol: req.user.rol,
   });
 
+  // Validación simple usando función centralizada
+  const idValidation = validateId(id, "ID de pedido");
+  if (!idValidation.isValid) {
+    return validationError(res, [
+      { field: "id", message: idValidation.message },
+    ]);
+  }
+
   if (!nuevo_estado) {
     return validationError(
       res,
@@ -244,7 +243,11 @@ const changeEstado = asyncHandler(async (req, res) => {
   }
 
   try {
-    const updatedPedido = await Pedido.updateStatus(id, nuevo_estado, userId);
+    const updatedPedido = await Pedido.updateStatus(
+      idValidation.value,
+      nuevo_estado,
+      userId
+    );
 
     logger.info("Estado de pedido actualizado", {
       pedidoId: id,
@@ -290,8 +293,16 @@ const confirmarPedido = asyncHandler(async (req, res) => {
     rol: req.user.rol,
   });
 
+  // Validación simple
+  const idValidation = validateId(id, "ID de pedido");
+  if (!idValidation.isValid) {
+    return validationError(res, [
+      { field: "id", message: idValidation.message },
+    ]);
+  }
+
   try {
-    const result = await Pedido.confirm(id, userId);
+    const result = await Pedido.confirm(idValidation.value, userId);
 
     logger.info("Pedido confirmado exitosamente", {
       pedidoId: id,
@@ -327,40 +338,31 @@ const getEstadisticas = asyncHandler(async (req, res) => {
   const { fecha_inicio, fecha_fin } = req.query;
   const userId = req.user.id;
 
-  // Fechas por defecto: último mes
-  const fechaFin = fecha_fin ? new Date(fecha_fin) : new Date();
-  const fechaInicio = fecha_inicio
-    ? new Date(fecha_inicio)
-    : new Date(fechaFin.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 días atrás
+  let fechaInicio, fechaFin;
 
-  logger.debug("Obteniendo estadísticas de pedidos", {
+  if (fecha_inicio && fecha_fin) {
+    // Fechas específicas proporcionadas
+    fechaInicio = new Date(fecha_inicio);
+    fechaFin = new Date(fecha_fin);
+  } else {
+    fechaInicio = new Date("2020-01-01"); // Fecha muy anterior
+    fechaFin = new Date("2030-12-31"); // Fecha muy posterior
+  }
+
+  logger.debug("Obteniendo estadísticas (método simple)", {
     fechaInicio: fechaInicio.toISOString().split("T")[0],
     fechaFin: fechaFin.toISOString().split("T")[0],
     userId,
   });
 
   const stats = await Pedido.getStatsByPeriod(fechaInicio, fechaFin);
-
-  // Agregar estadísticas adicionales básicas
   const pedidosPendientes = await Pedido.findPendingAssignment();
 
   const estadisticasCompletas = {
     ...stats,
     pedidos_pendientes_asignacion: pedidosPendientes.length,
-    promedio_pedidos_por_dia:
-      stats.total_pedidos > 0
-        ? (
-            stats.total_pedidos /
-            Math.ceil((fechaFin - fechaInicio) / (1000 * 60 * 60 * 24))
-          ).toFixed(1)
-        : 0,
+    tipo_consulta: fecha_inicio || fecha_fin ? "filtrada" : "todas",
   };
-
-  logger.debug("Estadísticas generadas", {
-    totalPedidos: stats.total_pedidos,
-    pendientes: pedidosPendientes.length,
-    userId,
-  });
 
   return success(
     res,
@@ -384,9 +386,17 @@ const asignarVehiculo = asyncHandler(async (req, res) => {
     userId,
   });
 
+  // Validación simple
+  const idValidation = validateId(id, "ID de pedido");
+  if (!idValidation.isValid) {
+    return validationError(res, [
+      { field: "id", message: idValidation.message },
+    ]);
+  }
+
   try {
     // Obtener el pedido
-    const pedido = await Pedido.findById(id);
+    const pedido = await Pedido.findById(idValidation.value);
     if (!pedido) {
       return notFound(res, "Pedido no encontrado");
     }
@@ -401,8 +411,15 @@ const asignarVehiculo = asyncHandler(async (req, res) => {
     let vehiculoAsignado;
 
     if (vehiculo_id) {
-      // Asignación manual
-      const vehiculo = await Vehiculo.findById(vehiculo_id);
+      // Asignación manual - validar vehículo
+      const vehiculoIdValidation = validateId(vehiculo_id, "ID de vehículo");
+      if (!vehiculoIdValidation.isValid) {
+        return validationError(res, [
+          { field: "vehiculo_id", message: vehiculoIdValidation.message },
+        ]);
+      }
+
+      const vehiculo = await Vehiculo.findById(vehiculoIdValidation.value);
       if (!vehiculo || vehiculo.estado !== "disponible") {
         return businessLogicError(res, "Vehículo no disponible");
       }
@@ -436,7 +453,11 @@ const asignarVehiculo = asyncHandler(async (req, res) => {
     );
 
     // Actualizar estado del pedido
-    const pedidoActualizado = await Pedido.updateStatus(id, "asignado", userId);
+    const pedidoActualizado = await Pedido.updateStatus(
+      idValidation.value,
+      "asignado",
+      userId
+    );
 
     logger.info("Vehículo asignado exitosamente", {
       pedidoId: id,

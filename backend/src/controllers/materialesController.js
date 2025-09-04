@@ -88,21 +88,6 @@ const createMaterial = asyncHandler(async (req, res) => {
     adminId: userId,
   });
 
-  // Validar datos requeridos básicos
-  if (!materialData.nombre || !materialData.precio_por_unidad) {
-    return validationError(
-      res,
-      [
-        { field: "nombre", message: "Nombre del material es requerido" },
-        {
-          field: "precio_por_unidad",
-          message: "Precio por unidad es requerido",
-        },
-      ],
-      "Datos incompletos"
-    );
-  }
-
   try {
     const newMaterial = await Material.create(materialData);
 

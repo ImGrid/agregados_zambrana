@@ -20,7 +20,11 @@ const {
   AuthenticationError,
   ConflictError,
 } = require("../middleware/errorHandler");
-const { validateUserRegistration } = require("../utils/validation");
+const {
+  validateUserRegistration,
+  validateEmail,
+  validatePassword,
+} = require("../utils/validation");
 const logger = require("../utils/logger");
 
 // ==========================================
@@ -35,26 +39,33 @@ const logger = require("../utils/logger");
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Validar datos requeridos
-  if (!email || !password) {
-    return validationError(
-      res,
-      [
-        { field: "email", message: "Email es requerido" },
-        { field: "password", message: "Contraseña es requerida" },
-      ],
-      "Credenciales incompletas"
-    );
+  // VALIDACIÓN SIMPLIFICADA - usar funciones centralizadas
+  const emailValidation = validateEmail(email);
+  const passwordValidation = validatePassword(password);
+
+  const errors = [];
+  if (!emailValidation.isValid) {
+    errors.push({ field: "email", message: emailValidation.message });
+  }
+  if (!passwordValidation.isValid) {
+    errors.push({ field: "password", message: passwordValidation.message });
   }
 
-  logger.info("Intento de login", { email, ip: req.ip });
+  if (errors.length > 0) {
+    return validationError(res, errors, "Credenciales incompletas");
+  }
+
+  logger.info("Intento de login", { email: emailValidation.value, ip: req.ip });
 
   // Verificar credenciales usando el modelo Usuario
-  const user = await Usuario.verifyCredentials(email, password);
+  const user = await Usuario.verifyCredentials(
+    emailValidation.value,
+    passwordValidation.value
+  );
 
   if (!user) {
     logger.warn("Login fallido - credenciales inválidas", {
-      email,
+      email: emailValidation.value,
       ip: req.ip,
       userAgent: req.get("User-Agent"),
     });
@@ -64,9 +75,6 @@ const login = asyncHandler(async (req, res) => {
   // Generar token JWT
   const token = generateToken(user);
 
-  // Crear respuesta de login
-  const loginData = createLoginResponse(user, token);
-
   logger.info("Login exitoso", {
     userId: user.id,
     email: user.email,
@@ -74,7 +82,6 @@ const login = asyncHandler(async (req, res) => {
     ip: req.ip,
   });
 
-  // Usar helper de respuesta específico para login
   return loginSuccess(res, user, token);
 });
 
@@ -267,16 +274,26 @@ const changePassword = asyncHandler(async (req, res) => {
   const { current_password, new_password } = req.body;
   const userId = req.user.id;
 
-  // Validar datos requeridos
-  if (!current_password || !new_password) {
-    return validationError(
-      res,
-      [
-        { field: "current_password", message: "Contraseña actual requerida" },
-        { field: "new_password", message: "Nueva contraseña requerida" },
-      ],
-      "Datos incompletos"
-    );
+  // VALIDACIÓN SIMPLIFICADA - usar funciones centralizadas
+  const currentPasswordValidation = validatePassword(current_password);
+  const newPasswordValidation = validatePassword(new_password);
+
+  const errors = [];
+  if (!currentPasswordValidation.isValid) {
+    errors.push({
+      field: "current_password",
+      message: "Contraseña actual requerida",
+    });
+  }
+  if (!newPasswordValidation.isValid) {
+    errors.push({
+      field: "new_password",
+      message: newPasswordValidation.message,
+    });
+  }
+
+  if (errors.length > 0) {
+    return validationError(res, errors, "Datos incompletos");
   }
 
   logger.info("Cambio de contraseña solicitado", { userId });
@@ -284,8 +301,8 @@ const changePassword = asyncHandler(async (req, res) => {
   // Cambiar contraseña usando método del modelo
   const success_change = await Usuario.changePassword(
     userId,
-    current_password,
-    new_password
+    currentPasswordValidation.value,
+    newPasswordValidation.value
   );
 
   if (success_change) {
@@ -293,7 +310,6 @@ const changePassword = asyncHandler(async (req, res) => {
     return success(res, null, "Contraseña actualizada exitosamente");
   }
 
-  // Si llegamos aquí, hubo un error (manejado por el modelo)
   return serverError(res, "Error cambiando contraseña");
 });
 
