@@ -1,6 +1,3 @@
-// src/routes/pedidos.js - Rutas de Pedidos
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const express = require("express");
 const router = express.Router();
 
@@ -39,20 +36,12 @@ const { addResponseHelpers } = require("../utils/responseHelper");
 // Agregar helpers de respuesta
 router.use(addResponseHelpers);
 
-// ==========================================
-// RUTAS PÚBLICAS (No requieren autenticación)
-// ==========================================
-
 /**
  * @route   GET /api/pedidos/seguimiento/:codigo
  * @desc    Seguimiento público por código de seguimiento
  * @access  Public
  */
 router.get("/seguimiento/:codigo", allowPublicTracking, trackPedido);
-
-// ==========================================
-// RUTAS PARA CLIENTES
-// ==========================================
 
 /**
  * @route   POST /api/pedidos
@@ -82,10 +71,6 @@ router.get(
   logPedidoAccess("view_own"),
   getMisPedidos
 );
-
-// ==========================================
-// RUTAS ADMINISTRATIVAS (Admin/Administrativo)
-// ==========================================
 
 /**
  * @route   GET /api/pedidos/estadisticas
@@ -160,9 +145,5 @@ router.put(
   logPedidoAccess("assign_vehicle"),
   asignarVehiculo
 );
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = router;

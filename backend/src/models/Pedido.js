@@ -1,6 +1,3 @@
-// src/models/Pedido.js - Model de Pedido COMPLETO CORREGIDO
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { query } = require("../config/database");
 const { PEDIDOS, STOCK, MATERIALES } = require("../config/queries");
 const {
@@ -15,10 +12,6 @@ const {
   BusinessLogicError,
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CLASE MODEL PEDIDO
-// ==========================================
 
 class Pedido {
   // Estados válidos de pedidos (debe coincidir con ENUM de BD)
@@ -49,10 +42,6 @@ class Pedido {
     [Pedido.ESTADOS.ENTREGADO]: [], // Estado final
     [Pedido.ESTADOS.CANCELADO]: [], // Estado final
   };
-
-  // ==========================================
-  // MÉTODOS DE CREACIÓN
-  // ==========================================
 
   /**
    * Crear nuevo pedido con validaciones de stock
@@ -141,10 +130,6 @@ class Pedido {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE BÚSQUEDA - SOLUCIÓN DEFINITIVA SIN NULL
-  // ==========================================
-
   /**
    * Obtener pedidos con información completa - CORREGIDO SIN PARÁMETROS NULL
    * @param {Object} filters - Filtros de búsqueda
@@ -208,8 +193,6 @@ class Pedido {
 
   /**
    * Obtener pedidos de un cliente específico
-   * @param {number} clienteId - ID del cliente
-   * @returns {Array} Pedidos del cliente
    */
   static async findByClient(clienteId) {
     try {
@@ -229,8 +212,6 @@ class Pedido {
 
   /**
    * Obtener pedido por código de seguimiento
-   * @param {string} codigoSeguimiento - Código de seguimiento
-   * @returns {Object|null} Pedido encontrado o null
    */
   static async findByTrackingCode(codigoSeguimiento) {
     try {
@@ -251,8 +232,6 @@ class Pedido {
 
   /**
    * Obtener pedido por ID con información completa
-   * @param {number} id - ID del pedido
-   * @returns {Object|null} Pedido encontrado o null
    */
   static async findById(id) {
     try {
@@ -272,7 +251,6 @@ class Pedido {
 
   /**
    * Obtener pedidos pendientes de asignación
-   * @returns {Array} Pedidos pendientes
    */
   static async findPendingAssignment() {
     try {
@@ -285,16 +263,8 @@ class Pedido {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE ACTUALIZACIÓN
-  // ==========================================
-
   /**
    * Actualizar estado del pedido con validaciones
-   * @param {number} id - ID del pedido
-   * @param {string} nuevoEstado - Nuevo estado
-   * @param {number} userId - ID del usuario que hace el cambio
-   * @returns {Object} Pedido actualizado
    */
   static async updateStatus(id, nuevoEstado, userId) {
     logger.info("Actualizando estado de pedido:", { id, nuevoEstado, userId });
@@ -354,9 +324,6 @@ class Pedido {
 
   /**
    * Confirmar pedido y reducir stock
-   * @param {number} id - ID del pedido
-   * @param {number} userId - ID del usuario que confirma
-   * @returns {Object} Resultado de la confirmación
    */
   static async confirm(id, userId) {
     logger.info("Confirmando pedido:", { id, userId });
@@ -421,15 +388,8 @@ class Pedido {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE ESTADÍSTICAS
-  // ==========================================
-
   /**
    * Obtener estadísticas de pedidos por período
-   * @param {Date} fechaInicio - Fecha de inicio
-   * @param {Date} fechaFin - Fecha de fin
-   * @returns {Object} Estadísticas
    */
   static async getStatsByPeriod(fechaInicio, fechaFin) {
     try {
@@ -461,15 +421,8 @@ class Pedido {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE UTILIDAD
-  // ==========================================
-
   /**
    * Validar transición de estado
-   * @param {string} estadoActual - Estado actual
-   * @param {string} estadoNuevo - Estado nuevo
-   * @returns {boolean} True si la transición es válida
    */
   static isValidTransition(estadoActual, estadoNuevo) {
     const transicionesPermitidas = this.FLUJO_ESTADOS[estadoActual] || [];
@@ -478,8 +431,6 @@ class Pedido {
 
   /**
    * Obtener próximos estados válidos
-   * @param {string} estadoActual - Estado actual
-   * @returns {Array} Lista de estados válidos
    */
   static getNextValidStates(estadoActual) {
     return this.FLUJO_ESTADOS[estadoActual] || [];
@@ -487,8 +438,6 @@ class Pedido {
 
   /**
    * Verificar si un pedido puede ser cancelado
-   * @param {string} estado - Estado del pedido
-   * @returns {boolean} True si puede ser cancelado
    */
   static canBeCanceled(estado) {
     return [
@@ -500,8 +449,6 @@ class Pedido {
 
   /**
    * Verificar si un pedido está en estado final
-   * @param {string} estado - Estado del pedido
-   * @returns {boolean} True si está en estado final
    */
   static isFinalState(estado) {
     return [this.ESTADOS.ENTREGADO, this.ESTADOS.CANCELADO].includes(estado);
@@ -509,8 +456,6 @@ class Pedido {
 
   /**
    * Formatear pedido para respuesta a cliente
-   * @param {Object} pedido - Objeto pedido
-   * @returns {Object} Pedido formateado
    */
   static formatForClient(pedido) {
     if (!pedido) return null;
@@ -529,9 +474,5 @@ class Pedido {
     };
   }
 }
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = Pedido;

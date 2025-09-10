@@ -1,6 +1,3 @@
-// src/models/Usuario.js - Model de Usuario
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { pool, query } = require("../config/database");
 const { USUARIOS } = require("../config/queries");
 const {
@@ -16,20 +13,9 @@ const {
 } = require("../middleware/errorHandler");
 const bcrypt = require("bcryptjs");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CLASE MODEL USUARIO
-// ==========================================
-
 class Usuario {
-  // ==========================================
-  // MÉTODOS DE CREACIÓN
-  // ==========================================
-
   /**
    * Crear nuevo usuario con validaciones
-   * @param {Object} userData - Datos del usuario
-   * @returns {Object} Usuario creado (sin password)
    */
   static async create(userData) {
     logger.info("Creando nuevo usuario:", {
@@ -84,8 +70,6 @@ class Usuario {
 
   /**
    * Registro de cliente (autoregistro)
-   * @param {Object} clientData - Datos del cliente
-   * @returns {Object} Cliente registrado
    */
   static async registerClient(clientData) {
     logger.info("Autoregistro de cliente:", { email: clientData.email });
@@ -99,14 +83,8 @@ class Usuario {
     return await this.create(userData);
   }
 
-  // ==========================================
-  // MÉTODOS DE BÚSQUEDA
-  // ==========================================
-
   /**
    * Buscar usuario por email
-   * @param {string} email - Email del usuario
-   * @returns {Object|null} Usuario encontrado o null
    */
   static async findByEmail(email) {
     try {
@@ -130,8 +108,6 @@ class Usuario {
 
   /**
    * Buscar usuario por ID
-   * @param {number} id - ID del usuario
-   * @returns {Object|null} Usuario encontrado o null
    */
   static async findById(id) {
     try {
@@ -153,8 +129,6 @@ class Usuario {
 
   /**
    * Listar usuarios por rol
-   * @param {string} rol - Rol a filtrar
-   * @returns {Array} Lista de usuarios
    */
   static async findByRole(rol) {
     try {
@@ -167,15 +141,8 @@ class Usuario {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE AUTENTICACIÓN
-  // ==========================================
-
   /**
    * Verificar credenciales de login
-   * @param {string} email - Email del usuario
-   * @param {string} password - Contraseña
-   * @returns {Object|null} Usuario si las credenciales son válidas
    */
   static async verifyCredentials(email, password) {
     logger.info("Verificando credenciales:", { email });
@@ -226,15 +193,8 @@ class Usuario {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE ACTUALIZACIÓN
-  // ==========================================
-
   /**
    * Actualizar perfil de usuario
-   * @param {number} id - ID del usuario
-   * @param {Object} updateData - Datos a actualizar
-   * @returns {Object} Usuario actualizado
    */
   static async updateProfile(id, updateData) {
     logger.info("Actualizando perfil de usuario:", { id });
@@ -328,10 +288,6 @@ class Usuario {
 
   /**
    * Cambiar contraseña de usuario
-   * @param {number} id - ID del usuario
-   * @param {string} currentPassword - Contraseña actual
-   * @param {string} newPassword - Nueva contraseña
-   * @returns {boolean} True si se cambió exitosamente
    */
   static async changePassword(id, currentPassword, newPassword) {
     logger.info("Cambiando contraseña:", { id });
@@ -387,14 +343,8 @@ class Usuario {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE UTILIDAD
-  // ==========================================
-
   /**
    * Formatear usuario (remover información sensible)
-   * @param {Object} user - Objeto usuario
-   * @returns {Object} Usuario formateado
    */
   static formatUser(user) {
     if (!user) return null;
@@ -405,9 +355,6 @@ class Usuario {
 
   /**
    * Verificar si un usuario tiene un rol específico
-   * @param {Object} user - Objeto usuario
-   * @param {string|Array} roles - Rol o array de roles
-   * @returns {boolean} True si tiene el rol
    */
   static hasRole(user, roles) {
     if (!user || !user.rol) return false;
@@ -421,8 +368,6 @@ class Usuario {
 
   /**
    * Verificar si un usuario es admin
-   * @param {Object} user - Objeto usuario
-   * @returns {boolean} True si es administrador
    */
   static isAdmin(user) {
     return this.hasRole(user, "administrador");
@@ -439,8 +384,6 @@ class Usuario {
 
   /**
    * Obtener permisos de usuario basado en rol
-   * @param {Object} user - Objeto usuario
-   * @returns {Object} Objeto con permisos
    */
   static getPermissions(user) {
     if (!user || !user.rol) {
@@ -478,9 +421,5 @@ class Usuario {
     return permissions[user.rol] || {};
   }
 }
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = Usuario;

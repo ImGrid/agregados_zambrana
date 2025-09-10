@@ -1,6 +1,3 @@
-// src/models/Vehiculo.js - Model de Vehículo (Sistema Experto)
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { query } = require("../config/database");
 const { VEHICULOS } = require("../config/queries");
 const {
@@ -16,10 +13,6 @@ const {
   BusinessLogicError,
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CLASE MODEL VEHICULO (CON SISTEMA EXPERTO)
-// ==========================================
 
 class Vehiculo {
   // Estados válidos de vehículos
@@ -42,13 +35,8 @@ class Vehiculo {
     BALANCE_USO: "balance_uso",
   };
 
-  // ==========================================
-  // MÉTODOS DE CONSULTA
-  // ==========================================
-
   /**
    * Obtener todos los vehículos con información de estado
-   * @returns {Array} Lista de vehículos
    */
   static async findAll() {
     try {
@@ -70,8 +58,6 @@ class Vehiculo {
 
   /**
    * Obtener vehículo por ID
-   * @param {number} id - ID del vehículo
-   * @returns {Object|null} Vehículo encontrado
    */
   static async findById(id) {
     try {
@@ -91,8 +77,6 @@ class Vehiculo {
 
   /**
    * Obtener vehículos disponibles por capacidad (usa función PostgreSQL optimizada)
-   * @param {number} capacidadMinima - Capacidad mínima requerida
-   * @returns {Array} Lista de vehículos disponibles
    */
   static async findAvailableByCapacity(capacidadMinima = 0) {
     try {
@@ -115,7 +99,6 @@ class Vehiculo {
 
   /**
    * Obtener estadísticas de la flota
-   * @returns {Object} Estadísticas de flota
    */
   static async getFleetStats() {
     try {
@@ -141,14 +124,8 @@ class Vehiculo {
     }
   }
 
-  // ==========================================
-  // SISTEMA EXPERTO - ASIGNACIÓN AUTOMÁTICA
-  // ==========================================
-
   /**
    * Sistema experto: Asignar vehículo óptimo para un pedido
-   * @param {Object} pedidoData - Datos del pedido
-   * @returns {Object} Resultado de asignación
    */
   static async asignarVehiculoAutomatico(pedidoData) {
     logger.info("Sistema experto: Asignando vehículo automático", {
@@ -205,9 +182,6 @@ class Vehiculo {
 
   /**
    * Aplicar reglas de selección del sistema experto
-   * @param {Array} vehiculosDisponibles - Lista de vehículos disponibles
-   * @param {Object} pedidoData - Datos del pedido
-   * @returns {Object} Vehículo seleccionado con justificación
    */
   static aplicarReglasSeleccion(vehiculosDisponibles, pedidoData) {
     let vehiculosEvaluados = vehiculosDisponibles.map((vehiculo) => ({
@@ -319,9 +293,6 @@ class Vehiculo {
 
   /**
    * Calcular tiempo estimado considerando múltiples factores
-   * @param {Object} vehiculo - Vehículo seleccionado
-   * @param {Object} pedidoData - Datos del pedido
-   * @returns {number} Tiempo estimado en minutos
    */
   static calcularTiempoEstimado(vehiculo, pedidoData) {
     // Tiempo base (esto vendría normalmente de Google Maps API)
@@ -362,15 +333,8 @@ class Vehiculo {
     return tiempoBase + tiempoCarga;
   }
 
-  // ==========================================
-  // MÉTODOS DE ACTUALIZACIÓN
-  // ==========================================
-
   /**
    * Actualizar estado del vehículo
-   * @param {number} id - ID del vehículo
-   * @param {string} nuevoEstado - Nuevo estado
-   * @returns {Object} Vehículo actualizado
    */
   static async updateStatus(id, nuevoEstado) {
     logger.info("Actualizando estado de vehículo:", { id, nuevoEstado });
@@ -418,10 +382,6 @@ class Vehiculo {
 
   /**
    * Actualizar ubicación GPS del vehículo
-   * @param {number} id - ID del vehículo
-   * @param {number} lat - Latitud
-   * @param {number} lng - Longitud
-   * @returns {Object} Vehículo con ubicación actualizada
    */
   static async updateLocation(id, lat, lng) {
     try {
@@ -460,17 +420,8 @@ class Vehiculo {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE UTILIDAD
-  // ==========================================
-
   /**
    * Calcular distancia entre dos puntos (Haversine)
-   * @param {number} lat1 - Latitud punto 1
-   * @param {number} lng1 - Longitud punto 1
-   * @param {number} lat2 - Latitud punto 2
-   * @param {number} lng2 - Longitud punto 2
-   * @returns {number} Distancia en kilómetros
    */
   static calculateDistance(lat1, lng1, lat2, lng2) {
     const R = 6371; // Radio de la Tierra en km
@@ -491,8 +442,6 @@ class Vehiculo {
 
   /**
    * Calcular tiempo desde última actualización
-   * @param {Date} ultimaUbicacion - Timestamp de última ubicación
-   * @returns {Object} Tiempo transcurrido
    */
   static calculateTimeSinceLastUpdate(ultimaUbicacion) {
     const ahora = new Date();
@@ -510,7 +459,6 @@ class Vehiculo {
 
   /**
    * Obtener capacidad total de la flota
-   * @returns {number} Capacidad total en m³
    */
   static async getTotalFleetCapacity() {
     try {
@@ -527,9 +475,6 @@ class Vehiculo {
 
   /**
    * Generar justificación para selección de vehículo
-   * @param {Object} vehiculo - Vehículo seleccionado
-   * @param {Object} pedidoData - Datos del pedido
-   * @returns {string} Justificación textual
    */
   static generarJustificacion(vehiculo, pedidoData) {
     const ratio = ((pedidoData.cantidad / vehiculo.capacidad) * 100).toFixed(1);
@@ -544,9 +489,5 @@ class Vehiculo {
     return justificacion;
   }
 }
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = Vehiculo;

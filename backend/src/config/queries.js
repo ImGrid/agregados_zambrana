@@ -1,10 +1,3 @@
-// src/config/queries.js - SOLUCIÓN DEFINITIVA PARA PARÁMETROS NULL
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
-// ==========================================
-// USUARIOS - Autenticación y Roles
-// ==========================================
-
 const USUARIOS_QUERIES = {
   FIND_BY_EMAIL: `
         SELECT id, email, password, rol, nombre, apellido, telefono, activo, created_at
@@ -45,10 +38,6 @@ const USUARIOS_QUERIES = {
     `,
 };
 
-// ==========================================
-// MATERIALES - Catálogo de Productos
-// ==========================================
-
 const MATERIALES_QUERIES = {
   LIST_ACTIVE: `
         SELECT id, nombre, descripcion, unidad_medida, precio_por_unidad, created_at
@@ -83,10 +72,6 @@ const MATERIALES_QUERIES = {
         RETURNING id, nombre
     `,
 };
-
-// ==========================================
-// STOCK - Inventario con Alertas
-// ==========================================
 
 const STOCK_QUERIES = {
   LIST_WITH_ALERTS: `
@@ -134,10 +119,6 @@ const STOCK_QUERIES = {
     `,
 };
 
-// ==========================================
-// VEHÍCULOS - Gestión de Flota
-// ==========================================
-
 const VEHICULOS_QUERIES = {
   LIST_ALL: `
         SELECT id, placa, marca, modelo, capacidad_m3, estado, 
@@ -182,10 +163,6 @@ const VEHICULOS_QUERIES = {
     `,
 };
 
-// ==========================================
-// CLIENTES - Información Extendida
-// ==========================================
-
 const CLIENTES_QUERIES = {
   FIND_BY_USER_ID: `
         SELECT c.*, u.nombre, u.apellido, u.email, u.telefono
@@ -223,19 +200,13 @@ const CLIENTES_QUERIES = {
     `,
 };
 
-// ==========================================
-// PEDIDOS - SOLUCIÓN DEFINITIVA SIN PARÁMETROS NULL
-// ==========================================
-
 const PEDIDOS_QUERIES = {
-  // SOLUCIÓN 1: Query sin filtro (todos los pedidos)
   LIST_ALL: `
         SELECT * FROM vista_pedidos_completa
         ORDER BY fecha_pedido DESC
         LIMIT $1 OFFSET $2
     `,
 
-  // SOLUCIÓN 2: Query con filtro específico por estado
   LIST_BY_ESTADO: `
         SELECT * FROM vista_pedidos_completa
         WHERE estado = $1
@@ -243,7 +214,6 @@ const PEDIDOS_QUERIES = {
         LIMIT $2 OFFSET $3
     `,
 
-  // SOLUCIÓN 3: Query usando COALESCE (más robusta)
   LIST_COMPLETE: `
         SELECT * FROM vista_pedidos_completa
         WHERE COALESCE($1::text, '') = '' OR estado = $1::text
@@ -304,10 +274,6 @@ const PEDIDOS_QUERIES = {
     `,
 };
 
-// ==========================================
-// DASHBOARD - Estadísticas
-// ==========================================
-
 const DASHBOARD_QUERIES = {
   GET_GENERAL_STATS: `
         SELECT * FROM estadisticas_dashboard()
@@ -337,10 +303,6 @@ const DASHBOARD_QUERIES = {
         ORDER BY valor_total DESC
     `,
 };
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = {
   USUARIOS: USUARIOS_QUERIES,

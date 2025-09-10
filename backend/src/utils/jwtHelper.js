@@ -1,13 +1,6 @@
-// src/utils/jwtHelper.js - Utilidades JWT y Manejo de Tokens
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require("./logger");
-
-// ==========================================
-// CONFIGURACIÓN JWT
-// ==========================================
 
 const JWT_SECRET = process.env.JWT_SECRET || "zambrana_secret_key_dev";
 const JWT_EXPIRE = process.env.JWT_EXPIRE || "24h";
@@ -18,14 +11,8 @@ if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   process.exit(1);
 }
 
-// ==========================================
-// FUNCIONES JWT
-// ==========================================
-
 /**
  * Generar token JWT para usuario
- * @param {Object} user - Objeto usuario (sin password)
- * @returns {string} Token JWT
  */
 const generateToken = (user) => {
   try {
@@ -58,8 +45,6 @@ const generateToken = (user) => {
 
 /**
  * Verificar y decodificar token JWT
- * @param {string} token - Token JWT
- * @returns {Object} Payload decodificado
  */
 const verifyToken = (token) => {
   try {
@@ -89,8 +74,6 @@ const verifyToken = (token) => {
 
 /**
  * Extraer token del header Authorization
- * @param {string} authHeader - Header Authorization
- * @returns {string|null} Token o null si no válido
  */
 const extractToken = (authHeader) => {
   if (!authHeader) {
@@ -113,14 +96,8 @@ const extractToken = (authHeader) => {
   return token;
 };
 
-// ==========================================
-// FUNCIONES DE PASSWORD
-// ==========================================
-
 /**
  * Hash de contraseña con bcrypt
- * @param {string} password - Contraseña en texto plano
- * @returns {Promise<string>} Hash de la contraseña
  */
 const hashPassword = async (password) => {
   try {
@@ -137,9 +114,6 @@ const hashPassword = async (password) => {
 
 /**
  * Verificar contraseña contra hash
- * @param {string} password - Contraseña en texto plano
- * @param {string} hash - Hash almacenado
- * @returns {Promise<boolean>} True si coincide
  */
 const verifyPassword = async (password, hash) => {
   try {
@@ -153,14 +127,8 @@ const verifyPassword = async (password, hash) => {
   }
 };
 
-// ==========================================
-// FUNCIONES DE UTILIDAD
-// ==========================================
-
 /**
  * Obtener información del token sin verificar (para debugging)
- * @param {string} token - Token JWT
- * @returns {Object|null} Payload decodificado sin verificar
  */
 const decodeTokenWithoutVerification = (token) => {
   try {
@@ -173,9 +141,6 @@ const decodeTokenWithoutVerification = (token) => {
 
 /**
  * Verificar si un token está próximo a expirar
- * @param {Object} decodedToken - Token decodificado
- * @param {number} minutesThreshold - Minutos antes de expiración
- * @returns {boolean} True si está próximo a expirar
  */
 const isTokenNearExpiry = (decodedToken, minutesThreshold = 30) => {
   if (!decodedToken || !decodedToken.exp) {
@@ -191,9 +156,6 @@ const isTokenNearExpiry = (decodedToken, minutesThreshold = 30) => {
 
 /**
  * Generar objeto de respuesta de login
- * @param {Object} user - Usuario autenticado
- * @param {string} token - Token generado
- * @returns {Object} Respuesta de login
  */
 const createLoginResponse = (user, token) => {
   return {
@@ -211,15 +173,8 @@ const createLoginResponse = (user, token) => {
   };
 };
 
-// ==========================================
-// VALIDACIONES DE SEGURIDAD
-// ==========================================
-
 /**
  * Verificar si el usuario tiene permisos para una acción
- * @param {Object} user - Usuario
- * @param {string|Array} requiredRoles - Rol o roles requeridos
- * @returns {boolean} True si tiene permisos
  */
 const hasPermission = (user, requiredRoles) => {
   if (!user || !user.rol) {
@@ -235,9 +190,6 @@ const hasPermission = (user, requiredRoles) => {
 
 /**
  * Verificar si un usuario puede acceder a datos de otro usuario
- * @param {Object} currentUser - Usuario actual
- * @param {number} targetUserId - ID del usuario objetivo
- * @returns {boolean} True si puede acceder
  */
 const canAccessUserData = (currentUser, targetUserId) => {
   // Admin puede acceder a todo
@@ -253,13 +205,8 @@ const canAccessUserData = (currentUser, targetUserId) => {
   return false;
 };
 
-// ==========================================
-// CONFIGURACIÓN DE RESPUESTAS
-// ==========================================
-
 /**
  * Configurar headers de seguridad para respuestas de auth
- * @param {Object} res - Objeto response de Express
  */
 const setSecurityHeaders = (res) => {
   res.set({
@@ -268,10 +215,6 @@ const setSecurityHeaders = (res) => {
     "X-XSS-Protection": "1; mode=block",
   });
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Funciones JWT

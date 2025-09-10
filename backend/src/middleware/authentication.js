@@ -1,6 +1,3 @@
-// src/middleware/auth.js - Middleware de Verificación de Tokens
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { verifyToken, extractToken } = require("../utils/jwtHelper");
 const {
   AuthenticationError,
@@ -8,10 +5,6 @@ const {
 } = require("./errorHandler");
 const Usuario = require("../models/Usuario");
 const logger = require("../utils/logger");
-
-// ==========================================
-// MIDDLEWARE DE AUTENTICACIÓN
-// ==========================================
 
 /**
  * Middleware principal de autenticación
@@ -124,10 +117,6 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
-// ==========================================
-// MIDDLEWARE DE AUTORIZACIÓN POR ROLES
-// ==========================================
-
 /**
  * Crear middleware de autorización por roles
  * @param {string|Array} allowedRoles - Rol o array de roles permitidos
@@ -175,10 +164,6 @@ const requireRoles = (...allowedRoles) => {
   };
 };
 
-// ==========================================
-// MIDDLEWARES ESPECÍFICOS POR ROL
-// ==========================================
-
 /**
  * Middleware para solo administradores
  */
@@ -207,10 +192,6 @@ const requireAuth = requireRoles(
   "conductor",
   "cliente"
 );
-
-// ==========================================
-// MIDDLEWARES ESPECIALES
-// ==========================================
 
 /**
  * Middleware para verificar que el usuario puede acceder a datos de otro usuario
@@ -282,10 +263,6 @@ const requireOrderOwnership = async (req, res, next) => {
   }
 };
 
-// ==========================================
-// UTILIDADES DE MIDDLEWARE
-// ==========================================
-
 /**
  * Middleware para logging de accesos autenticados
  */
@@ -331,10 +308,6 @@ const checkTokenExpiry = (req, res, next) => {
   }
   next();
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Middleware principal

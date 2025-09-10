@@ -1,6 +1,3 @@
-// src/middleware/pedidoAuth.js - Middleware de Autorización para Pedidos
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const {
   createAuthorizationError,
   AuthenticationError,
@@ -8,10 +5,6 @@ const {
 const Pedido = require("../models/Pedido");
 const Cliente = require("../models/Cliente");
 const logger = require("../utils/logger");
-
-// ==========================================
-// MIDDLEWARE DE AUTORIZACIÓN PARA PEDIDOS
-// ==========================================
 
 /**
  * Verificar que un cliente solo accede a sus propios pedidos
@@ -247,10 +240,6 @@ const logPedidoAccess = (action = "access") => {
   };
 };
 
-// ==========================================
-// UTILITIES
-// ==========================================
-
 /**
  * Verificar si un usuario puede ver estadísticas de pedidos
  */
@@ -264,10 +253,6 @@ const canViewPedidoStats = (user) => {
 const canCreateOrderForOthers = (user) => {
   return ["administrador"].includes(user?.rol);
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Middlewares principales

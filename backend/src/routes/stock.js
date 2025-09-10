@@ -1,6 +1,3 @@
-// src/routes/stock.js - Rutas de Stock e Inventario
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const express = require("express");
 const router = express.Router();
 
@@ -24,10 +21,6 @@ const {
 
 const { addResponseHelpers } = require("../utils/responseHelper");
 
-// ==========================================
-// MIDDLEWARE PARA TODAS LAS RUTAS
-// ==========================================
-
 // Agregar helpers de respuesta
 router.use(addResponseHelpers);
 
@@ -37,10 +30,6 @@ router.use(logAuthenticatedAccess);
 
 // Todas las rutas requieren rol administrativo
 router.use(requireAdminOrStaff);
-
-// ==========================================
-// RUTAS PRINCIPALES DE STOCK (FASE 4)
-// ==========================================
 
 /**
  * @route   GET /api/stock
@@ -63,10 +52,6 @@ router.get("/alerts", getStockAlerts);
  * @body    { cantidad_disponible }
  */
 router.put("/:material_id", updateStock);
-
-// ==========================================
-// RUTAS ADICIONALES DE UTILIDAD
-// ==========================================
 
 /**
  * @route   GET /api/stock/summary
@@ -97,9 +82,5 @@ router.post("/check-availability", checkStockAvailability);
  * @body    { cantidad }
  */
 router.post("/:material_id/increment", incrementStock);
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = router;

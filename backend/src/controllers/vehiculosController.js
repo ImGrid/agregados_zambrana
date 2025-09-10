@@ -1,7 +1,3 @@
-// src/controllers/vehiculosController.js - Controller Práctico de Vehículos
-// Sistema de Tracking Vehicular - Agregados Zambrana
-// FILOSOFÍA: Simple y directo - para gestión básica de 3 vehículos
-
 const Vehiculo = require("../models/Vehiculo");
 const Pedido = require("../models/Pedido");
 const {
@@ -24,10 +20,6 @@ const {
   BusinessLogicError,
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
-
-// ==========================================
-// GESTIÓN BÁSICA DE FLOTA
-// ==========================================
 
 /**
  * Listar todos los vehículos con estado actual
@@ -106,10 +98,6 @@ const getFleetStats = asyncHandler(async (req, res) => {
 
   return success(res, statsCompletas, "Estadísticas de flota obtenidas");
 });
-
-// ==========================================
-// GESTIÓN DE ESTADOS
-// ==========================================
 
 /**
  * Cambiar estado de vehículo
@@ -241,10 +229,6 @@ const actualizarUbicacion = asyncHandler(async (req, res) => {
     throw error;
   }
 });
-
-// ==========================================
-// SISTEMA EXPERTO SIMPLE
-// ==========================================
 
 /**
  * Obtener vehículos disponibles por capacidad
@@ -411,10 +395,6 @@ const asignarVehiculoAutomatico = asyncHandler(async (req, res) => {
     throw error;
   }
 });
-
-// ==========================================
-// DASHBOARD DE FLOTA
-// ==========================================
 
 /**
  * Dashboard básico de flota

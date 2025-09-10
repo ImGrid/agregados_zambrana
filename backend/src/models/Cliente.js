@@ -1,6 +1,3 @@
-// src/models/Cliente.js - Model de Cliente
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { query } = require("../config/database");
 const { CLIENTES } = require("../config/queries");
 const { validateId, sanitizeText } = require("../utils/validation");
@@ -9,10 +6,6 @@ const {
   NotFoundError,
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CLASE MODEL CLIENTE
-// ==========================================
 
 class Cliente {
   /**
@@ -127,9 +120,5 @@ class Cliente {
     }
   }
 }
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = Cliente;

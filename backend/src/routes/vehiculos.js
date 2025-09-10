@@ -1,6 +1,3 @@
-// src/routes/vehiculos.js - Rutas de Vehículos
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const express = require("express");
 const router = express.Router();
 
@@ -24,10 +21,6 @@ const {
 
 const { addResponseHelpers } = require("../utils/responseHelper");
 
-// ==========================================
-// MIDDLEWARE PARA TODAS LAS RUTAS
-// ==========================================
-
 // Agregar helpers de respuesta
 router.use(addResponseHelpers);
 
@@ -37,10 +30,6 @@ router.use(logAuthenticatedAccess);
 
 // Todas las rutas requieren rol administrativo (por ahora)
 router.use(requireAdminOrStaff);
-
-// ==========================================
-// RUTAS PRINCIPALES DE GESTIÓN
-// ==========================================
 
 /**
  * @route   GET /api/vehiculos
@@ -63,10 +52,6 @@ router.get("/estadisticas", getFleetStats);
  */
 router.get("/dashboard", getDashboardFlota);
 
-// ==========================================
-// RUTAS DE ESTADOS Y UBICACIÓN
-// ==========================================
-
 /**
  * @route   PUT /api/vehiculos/:id/estado
  * @desc    Cambiar estado de vehículo
@@ -82,10 +67,6 @@ router.put("/:id/estado", cambiarEstado);
  * @body    { lat, lng }
  */
 router.put("/:id/ubicacion", actualizarUbicacion);
-
-// ==========================================
-// RUTAS DEL SISTEMA EXPERTO SIMPLE
-// ==========================================
 
 /**
  * @route   GET /api/vehiculos/disponibles/:capacidad

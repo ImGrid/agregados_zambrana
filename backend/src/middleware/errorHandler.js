@@ -1,11 +1,4 @@
-// src/middleware/errorHandler.js - Manejo Centralizado de Errores
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const logger = require("../utils/logger");
-
-// ==========================================
-// TIPOS DE ERROR PERSONALIZADOS
-// ==========================================
 
 /**
  * Error de validación (400 Bad Request)
@@ -74,10 +67,6 @@ class BusinessLogicError extends Error {
   }
 }
 
-// ==========================================
-// MIDDLEWARE DE MANEJO DE ERRORES
-// ==========================================
-
 /**
  * Middleware principal de manejo de errores
  * Debe ir al final de todas las rutas
@@ -96,10 +85,6 @@ const errorHandler = (error, req, res, next) => {
     ip: req.ip,
     userAgent: req.get("User-Agent"),
   });
-
-  // ==========================================
-  // ERRORES PERSONALIZADOS
-  // ==========================================
 
   if (error instanceof ValidationError) {
     statusCode = 400;
@@ -141,12 +126,7 @@ const errorHandler = (error, req, res, next) => {
       message,
       url: req.originalUrl,
     });
-  }
-
-  // ==========================================
-  // ERRORES DE BASE DE DATOS (PostgreSQL)
-  // ==========================================
-  else if (error.code) {
+  } else if (error.code) {
     switch (error.code) {
       case "23505": // Unique violation
         statusCode = 409;
@@ -198,12 +178,7 @@ const errorHandler = (error, req, res, next) => {
           message: error.message,
         });
     }
-  }
-
-  // ==========================================
-  // ERRORES DE JSONWEBTOKEN
-  // ==========================================
-  else if (error.name === "JsonWebTokenError") {
+  } else if (error.name === "JsonWebTokenError") {
     statusCode = 401;
     message = "Token inválido";
   } else if (error.name === "TokenExpiredError") {
@@ -212,12 +187,7 @@ const errorHandler = (error, req, res, next) => {
   } else if (error.name === "NotBeforeError") {
     statusCode = 401;
     message = "Token no válido aún";
-  }
-
-  // ==========================================
-  // ERRORES DE SINTAXIS JSON
-  // ==========================================
-  else if (
+  } else if (
     error instanceof SyntaxError &&
     error.status === 400 &&
     "body" in error
@@ -227,19 +197,10 @@ const errorHandler = (error, req, res, next) => {
   } else if (error.type === "entity.too.large") {
     statusCode = 413;
     message = "El cuerpo de la petición es demasiado grande";
-  }
-
-  // ==========================================
-  // ERRORES ESTÁNDAR DE HTTP
-  // ==========================================
-  else if (error.statusCode) {
+  } else if (error.statusCode) {
     statusCode = error.statusCode;
     message = error.message;
   }
-
-  // ==========================================
-  // RESPUESTA DE ERROR ESTANDARIZADA
-  // ==========================================
 
   const errorResponse = {
     success: false,
@@ -269,10 +230,6 @@ const errorHandler = (error, req, res, next) => {
   res.status(statusCode).json(errorResponse);
 };
 
-// ==========================================
-// MIDDLEWARE PARA CAPTURAR ASYNC ERRORS
-// ==========================================
-
 /**
  * Wrapper para async handlers que automaticamente captura errores
  * Evita tener que usar try/catch en cada controller async
@@ -282,11 +239,6 @@ const asyncHandler = (fn) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
-
-// ==========================================
-// MIDDLEWARE DE 404 (RUTA NO ENCONTRADA)
-// ==========================================
-
 /**
  * Middleware para manejar rutas no encontradas
  * Debe ir antes del errorHandler pero después de todas las rutas
@@ -297,10 +249,6 @@ const notFoundHandler = (req, res, next) => {
   );
   next(error);
 };
-
-// ==========================================
-// FUNCIONES HELPER PARA CREAR ERRORES
-// ==========================================
 
 /**
  * Crear error de validación con detalles
@@ -331,10 +279,6 @@ const createAuthorizationError = (
 ) => {
   return new AuthorizationError(message);
 };
-
-// ==========================================
-// MIDDLEWARE DE LOGGING DE REQUESTS
-// ==========================================
 
 /**
  * Middleware para generar ID único por request (opcional)
@@ -383,10 +327,6 @@ const requestLogger = (req, res, next) => {
 
   next();
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Clases de error

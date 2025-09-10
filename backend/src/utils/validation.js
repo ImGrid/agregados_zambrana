@@ -1,11 +1,4 @@
-// src/utils/validation.js - Validaciones Comunes
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const validator = require("validator");
-
-// ==========================================
-// VALIDACIONES BÁSICAS
-// ==========================================
 
 /**
  * Validar email
@@ -128,10 +121,6 @@ const validateUserRole = (rol) => {
 
   return { isValid: true, value: rol };
 };
-
-// ==========================================
-// VALIDACIONES DE NEGOCIO
-// ==========================================
 
 /**
  * Validar cantidad de material
@@ -288,10 +277,6 @@ const validateDeliveryDate = (fecha) => {
   return { isValid: true, value: deliveryDate.toISOString().split("T")[0] };
 };
 
-// ==========================================
-// VALIDACIONES DE VEHÍCULOS
-// ==========================================
-
 /**
  * Validar placa de vehículo boliviano
  */
@@ -350,10 +335,6 @@ const validateVehicleStatus = (estado) => {
 
   return { isValid: true, value: estado };
 };
-
-// ==========================================
-// VALIDACIONES COMPUESTAS
-// ==========================================
 
 /**
  * Validar datos de registro de usuario
@@ -498,10 +479,6 @@ const validateOrderData = (orderData) => {
   };
 };
 
-// ==========================================
-// UTILIDADES
-// ==========================================
-
 /**
  * Sanitizar texto (prevenir XSS básico)
  */
@@ -536,10 +513,6 @@ const validateId = (id, fieldName = "ID") => {
 
   return { isValid: true, value: numId };
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Validaciones básicas

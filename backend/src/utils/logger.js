@@ -21,10 +21,6 @@ const COLORS = {
   reset: "\x1b[0m", // Reset
 };
 
-// ==========================================
-// FUNCIONES DE LOG
-// ==========================================
-
 /**
  * Formatear timestamp para logs
  */
@@ -96,10 +92,6 @@ const log = (level, message, ...args) => {
   writeToFile(level, formattedMessage);
 };
 
-// ==========================================
-// FUNCIONES ESPECÍFICAS DE NIVEL
-// ==========================================
-
 const logger = {
   /**
    * Log de error (mayor prioridad)
@@ -156,11 +148,6 @@ const logger = {
     log(success ? "info" : "warn", message);
   },
 };
-
-// ==========================================
-// FUNCIONES UTILITARIAS
-// ==========================================
-
 /**
  * Obtener estadísticas de logs
  */
@@ -191,10 +178,6 @@ logger.setLevel = (level) => {
   }
 };
 
-// ==========================================
-// MANEJO DE ERRORES NO CAPTURADOS
-// ==========================================
-
 // Log de errores no manejados
 process.on("uncaughtException", (error) => {
   logger.error("ERROR NO CAPTURADO:", error.message);
@@ -207,9 +190,5 @@ process.on("unhandledRejection", (reason, promise) => {
   logger.error("Promise:", promise);
   process.exit(1);
 });
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = logger;

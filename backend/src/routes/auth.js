@@ -1,6 +1,3 @@
-// src/routes/auth.js - Rutas de Autenticación
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const express = require("express");
 const router = express.Router();
 
@@ -28,10 +25,6 @@ const { addResponseHelpers } = require("../utils/responseHelper");
 // Agregar helpers de respuesta a todas las rutas
 router.use(addResponseHelpers);
 
-// ==========================================
-// RUTAS PÚBLICAS (NO REQUIEREN AUTENTICACIÓN)
-// ==========================================
-
 /**
  * @route   POST /api/auth/login
  * @desc    Iniciar sesión con email y password
@@ -47,10 +40,6 @@ router.post("/login", login);
  * @body    { nombre, apellido, email, password, telefono?, empresa?, direccion?, ciudad? }
  */
 router.post("/register", registerClient);
-
-// ==========================================
-// RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN)
-// ==========================================
 
 // Middleware para todas las rutas protegidas
 router.use(authenticateToken);
@@ -87,10 +76,6 @@ router.put("/profile", updateProfile);
  */
 router.put("/change-password", changePassword);
 
-// ==========================================
-// RUTAS ADMINISTRATIVAS (SOLO ADMINISTRADORES)
-// ==========================================
-
 /**
  * @route   POST /api/auth/admin/create-user
  * @desc    Crear nuevo usuario (cualquier rol)
@@ -98,10 +83,6 @@ router.put("/change-password", changePassword);
  * @body    { nombre, apellido, email, password, rol, telefono? }
  */
 router.post("/admin/create-user", requireAdmin, createUser);
-
-// ==========================================
-// MIDDLEWARE DE MANEJO DE ERRORES ESPECÍFICO
-// ==========================================
 
 // Manejo de rutas no encontradas dentro de /auth
 router.use((req, res) => {
@@ -114,9 +95,5 @@ router.use((req, res) => {
     },
   });
 });
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = router;

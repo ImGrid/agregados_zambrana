@@ -1,18 +1,9 @@
-// src/utils/codigoSeguimiento.js - Generación SIMPLIFICADA de Códigos de Seguimiento
-// Sistema de Tracking Vehicular - Agregados Zambrana
-// FILOSOFÍA: Simple y directo - ZAM000001, ZAM000002...
-
 const { query } = require("../config/database");
 const logger = require("./logger");
-
-// ==========================================
-// GENERACIÓN SIMPLE DE CÓDIGOS
-// ==========================================
 
 /**
  * Generar código de seguimiento secuencial simple
  * Formato: ZAM + 6 dígitos (ZAM000001, ZAM000002...)
- * @returns {Promise<string>} Código único
  */
 const generateUniqueTrackingCode = async () => {
   try {
@@ -45,8 +36,6 @@ const generateUniqueTrackingCode = async () => {
 
 /**
  * Validar formato de código de seguimiento
- * @param {string} codigo - Código a validar
- * @returns {Object} Resultado de validación
  */
 const validateTrackingCode = (codigo) => {
   if (!codigo || typeof codigo !== "string") {
@@ -74,8 +63,6 @@ const validateTrackingCode = (codigo) => {
 
 /**
  * Normalizar código para búsqueda (remover espacios, convertir mayúsculas)
- * @param {string} codigo - Código ingresado por el usuario
- * @returns {string} Código normalizado
  */
 const normalizeTrackingCodeForSearch = (codigo) => {
   if (!codigo) return "";
@@ -89,8 +76,6 @@ const normalizeTrackingCodeForSearch = (codigo) => {
 
 /**
  * Verificar si un código de seguimiento existe (helper para testing)
- * @param {string} codigo - Código de seguimiento
- * @returns {Promise<boolean>} True si existe
  */
 const trackingCodeExists = async (codigo) => {
   try {
@@ -108,8 +93,6 @@ const trackingCodeExists = async (codigo) => {
 
 /**
  * Formatear código para mostrar al usuario (ya está en formato simple)
- * @param {string} codigo - Código completo
- * @returns {string} Código formateado (igual al original)
  */
 const formatTrackingCodeForDisplay = (codigo) => {
   const validation = validateTrackingCode(codigo);
@@ -118,8 +101,6 @@ const formatTrackingCodeForDisplay = (codigo) => {
 
 /**
  * Generar código corto para notificaciones (últimos 4 dígitos)
- * @param {string} codigoCompleto - Código completo ZAM000001
- * @returns {string} Código corto (0001)
  */
 const generateShortCode = (codigoCompleto) => {
   const validation = validateTrackingCode(codigoCompleto);
@@ -128,10 +109,6 @@ const generateShortCode = (codigoCompleto) => {
   // Últimos 4 dígitos: ZAM000001 -> 0001
   return validation.value.slice(-4);
 };
-
-// ==========================================
-// EXPORTS SIMPLIFICADOS
-// ==========================================
 
 module.exports = {
   // Función principal

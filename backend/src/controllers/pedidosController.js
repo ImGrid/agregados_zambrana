@@ -1,6 +1,3 @@
-// src/controllers/pedidosController.js - Controller de Pedidos LIMPIO
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const Pedido = require("../models/Pedido");
 const Cliente = require("../models/Cliente");
 const Material = require("../models/Material");
@@ -27,10 +24,6 @@ const {
   BusinessLogicError,
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CONTROLLERS PARA CLIENTES
-// ==========================================
 
 /**
  * Crear nuevo pedido (clientes)
@@ -162,10 +155,6 @@ const trackPedido = asyncHandler(async (req, res) => {
 
   return success(res, trackingInfo, "Información de seguimiento obtenida");
 });
-
-// ==========================================
-// CONTROLLERS PARA ADMINISTRATIVOS
-// ==========================================
 
 /**
  * Listar todos los pedidos con filtros (admin/administrativos)
@@ -491,10 +480,6 @@ const asignarVehiculo = asyncHandler(async (req, res) => {
   }
 });
 
-// ==========================================
-// UTILITIES
-// ==========================================
-
 /**
  * Obtener descripción amigable del estado
  */
@@ -510,10 +495,6 @@ const getEstadoDescripcion = (estado) => {
 
   return descripciones[estado] || "Estado desconocido";
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Controllers para clientes

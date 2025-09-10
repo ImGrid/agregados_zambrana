@@ -1,6 +1,3 @@
-// src/routes/materiales.js - Rutas de Materiales
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const express = require("express");
 const router = express.Router();
 
@@ -24,10 +21,6 @@ const {
 
 const { addResponseHelpers } = require("../utils/responseHelper");
 
-// ==========================================
-// MIDDLEWARE PARA TODAS LAS RUTAS
-// ==========================================
-
 // Agregar helpers de respuesta
 router.use(addResponseHelpers);
 
@@ -37,10 +30,6 @@ router.use(logAuthenticatedAccess);
 
 // Todas las rutas requieren rol administrativo
 router.use(requireAdminOrStaff);
-
-// ==========================================
-// RUTAS DE MATERIALES
-// ==========================================
 
 /**
  * @route   GET /api/materiales
@@ -85,9 +74,5 @@ router.put("/:id", updateMaterial);
  * @access  Private (Solo Admin)
  */
 router.delete("/:id", requireAdmin, deactivateMaterial);
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = router;

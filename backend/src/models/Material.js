@@ -1,7 +1,3 @@
-// ==========================================
-// src/models/Material.js - Model de Material
-// ==========================================
-
 const { query } = require("../config/database");
 const { MATERIALES } = require("../config/queries");
 const {

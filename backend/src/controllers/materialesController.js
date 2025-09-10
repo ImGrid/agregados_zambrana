@@ -1,6 +1,3 @@
-// src/controllers/materialesController.js - Controller de Materiales
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const Material = require("../models/Material");
 const {
   success,
@@ -16,10 +13,6 @@ const {
   NotFoundError,
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CONTROLLERS DE MATERIALES
-// ==========================================
 
 /**
  * Listar todos los materiales activos
@@ -235,10 +228,6 @@ const getMaterialStats = asyncHandler(async (req, res) => {
 
   return success(res, stats, "Estadísticas de materiales obtenidas");
 });
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   getMateriales,

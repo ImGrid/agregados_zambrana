@@ -1,12 +1,5 @@
-// src/config/database.js - Configuración PostgreSQL
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { Pool } = require("pg");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CONFIGURACIÓN DE CONEXIÓN
-// ==========================================
 
 const poolConfig = {
   host: process.env.DB_HOST || "localhost",
@@ -32,10 +25,6 @@ const poolConfig = {
 // Crear pool de conexiones
 const pool = new Pool(poolConfig);
 
-// ==========================================
-// MANEJO DE EVENTOS DEL POOL
-// ==========================================
-
 pool.on("connect", (client) => {
   logger.info("Nueva conexión establecida con PostgreSQL");
 });
@@ -52,10 +41,6 @@ pool.on("error", (err, client) => {
   logger.error("Error inesperado en conexión PostgreSQL:", err.message);
   process.exit(-1);
 });
-
-// ==========================================
-// FUNCIONES DE CONEXIÓN Y VALIDACIÓN
-// ==========================================
 
 /**
  * Conectar a la base de datos y validar conexión
@@ -177,10 +162,6 @@ const healthCheck = async () => {
     };
   }
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   pool, // Pool de conexiones para usar directamente

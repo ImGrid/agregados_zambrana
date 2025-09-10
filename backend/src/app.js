@@ -1,6 +1,3 @@
-// src/app.js - Servidor Principal Express (FASE 4 - LIMPIO)
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -20,10 +17,6 @@ const { addResponseHelpers } = require("./utils/responseHelper");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// ==========================================
-// MIDDLEWARES BÁSICOS
-// ==========================================
 
 // Generar ID único por request
 app.use(generateRequestId);
@@ -47,10 +40,6 @@ app.use(requestLogger);
 // Agregar helpers de respuesta
 app.use(addResponseHelpers);
 
-// ==========================================
-// RUTAS PRINCIPALES
-// ==========================================
-
 // Autenticación (Fase 3)
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
@@ -67,6 +56,14 @@ app.use("/api/stock", stockRoutes);
 const pedidosRoutes = require("./routes/pedidos");
 app.use("/api/pedidos", pedidosRoutes);
 
+// Vehículos (Fase 6)
+const vehiculosRoutes = require("./routes/vehiculos");
+app.use("/api/vehiculos", vehiculosRoutes);
+
+// DASHBOARD (Fase 7)
+const dashboardRoutes = require("./routes/dashboard");
+app.use("/api/dashboard", dashboardRoutes);
+
 // Status básico (solo desarrollo)
 if (process.env.NODE_ENV === "development") {
   app.get("/api/status", async (req, res) => {
@@ -76,6 +73,13 @@ if (process.env.NODE_ENV === "development") {
         status: "OK",
         database: "connected",
         timestamp: result.rows[0].timestamp,
+        fases_completadas: [
+          "Fase 3: Autenticación",
+          "Fase 4: Materiales y Stock",
+          "Fase 5: Pedidos",
+          "Fase 6: Vehículos",
+          "Fase 7: Dashboard",
+        ],
       });
     } catch (error) {
       res.status(500).json({
@@ -86,19 +90,11 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-// ==========================================
-// MANEJO DE ERRORES
-// ==========================================
-
 // Manejar rutas no encontradas
 app.use(notFoundHandler);
 
 // Manejo de errores global
 app.use(errorHandler);
-
-// ==========================================
-// INICIALIZACIÓN DEL SERVIDOR
-// ==========================================
 
 const startServer = async () => {
   try {
@@ -133,10 +129,6 @@ const startServer = async () => {
   }
 };
 
-// ==========================================
-// MANEJO DE CIERRE GRACEFUL
-// ==========================================
-
 const gracefulShutdown = async (signal) => {
   logger.info(`Cerrando servidor (${signal})`);
 
@@ -164,10 +156,6 @@ process.on("unhandledRejection", (reason, promise) => {
   logger.error("Promesa rechazada no manejada:", { reason });
   gracefulShutdown("UNHANDLED_REJECTION");
 });
-
-// ==========================================
-// INICIALIZAR
-// ==========================================
 
 startServer();
 

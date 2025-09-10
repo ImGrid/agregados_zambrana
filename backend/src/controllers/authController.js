@@ -1,6 +1,3 @@
-// src/controllers/authController.js - Controller de Autenticación
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const Usuario = require("../models/Usuario");
 const Cliente = require("../models/Cliente");
 const { generateToken, createLoginResponse } = require("../utils/jwtHelper");
@@ -26,10 +23,6 @@ const {
   validatePassword,
 } = require("../utils/validation");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CONTROLLERS DE AUTENTICACIÓN
-// ==========================================
 
 /**
  * Login de usuario
@@ -313,10 +306,6 @@ const changePassword = asyncHandler(async (req, res) => {
   return serverError(res, "Error cambiando contraseña");
 });
 
-// ==========================================
-// CONTROLLERS ADMINISTRATIVOS (SOLO ADMIN)
-// ==========================================
-
 /**
  * Crear usuario (solo administradores)
  * POST /api/auth/admin/create-user
@@ -387,10 +376,6 @@ const createUser = asyncHandler(async (req, res) => {
     throw error;
   }
 });
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Autenticación básica

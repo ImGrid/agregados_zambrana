@@ -1,6 +1,3 @@
-// src/models/Stock.js - Model de Stock e Inventario
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { query } = require("../config/database");
 const { STOCK, MATERIALES } = require("../config/queries");
 const { validateId, validateQuantity } = require("../utils/validation");
@@ -11,10 +8,6 @@ const {
 } = require("../middleware/errorHandler");
 const logger = require("../utils/logger");
 
-// ==========================================
-// CLASE MODEL STOCK
-// ==========================================
-
 class Stock {
   // Niveles de alerta
   static NIVELES_STOCK = {
@@ -23,13 +16,8 @@ class Stock {
     NORMAL: "NORMAL",
   };
 
-  // ==========================================
-  // MÉTODOS DE CONSULTA
-  // ==========================================
-
   /**
    * Obtener inventario completo con alertas (usa vista optimizada)
-   * @returns {Array} Lista de stock con niveles de alerta
    */
   static async getInventoryWithAlerts() {
     try {
@@ -48,8 +36,6 @@ class Stock {
 
   /**
    * Obtener stock de un material específico
-   * @param {number} materialId - ID del material
-   * @returns {Object|null} Información de stock
    */
   static async findByMaterial(materialId) {
     try {
@@ -85,7 +71,6 @@ class Stock {
 
   /**
    * Obtener materiales con stock crítico
-   * @returns {Array} Lista de materiales con stock crítico
    */
   static async getCriticalStock() {
     try {
@@ -104,9 +89,6 @@ class Stock {
 
   /**
    * Verificar disponibilidad de stock (usa función PostgreSQL)
-   * @param {number} materialId - ID del material
-   * @param {number} cantidadRequerida - Cantidad requerida
-   * @returns {Object} Resultado de verificación
    */
   static async checkAvailability(materialId, cantidadRequerida) {
     try {
@@ -154,16 +136,8 @@ class Stock {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE ACTUALIZACIÓN
-  // ==========================================
-
   /**
    * Actualizar cantidad de stock
-   * @param {number} materialId - ID del material
-   * @param {number} nuevaCantidad - Nueva cantidad
-   * @param {number} userId - ID del usuario que actualiza
-   * @returns {Object} Stock actualizado con alertas
    */
   static async updateQuantity(materialId, nuevaCantidad, userId) {
     logger.info("Actualizando stock:", { materialId, nuevaCantidad, userId });
@@ -244,10 +218,6 @@ class Stock {
 
   /**
    * Reducir stock por consumo (pedidos, etc.)
-   * @param {number} materialId - ID del material
-   * @param {number} cantidadAReducir - Cantidad a reducir
-   * @param {number} userId - ID del usuario
-   * @returns {Object} Stock después de la reducción
    */
   static async reduceStock(materialId, cantidadAReducir, userId) {
     logger.info("Reduciendo stock:", { materialId, cantidadAReducir, userId });
@@ -304,10 +274,6 @@ class Stock {
 
   /**
    * Incrementar stock por entrada/reposición
-   * @param {number} materialId - ID del material
-   * @param {number} cantidadAIncrementar - Cantidad a incrementar
-   * @param {number} userId - ID del usuario
-   * @returns {Object} Stock después del incremento
    */
   static async increaseStock(materialId, cantidadAIncrementar, userId) {
     logger.info("Incrementando stock:", {
@@ -335,15 +301,8 @@ class Stock {
     }
   }
 
-  // ==========================================
-  // MÉTODOS DE UTILIDAD Y CÁLCULOS
-  // ==========================================
-
   /**
    * Calcular nivel de stock
-   * @param {number} cantidadActual - Cantidad actual
-   * @param {number} cantidadMinima - Cantidad mínima
-   * @returns {string} Nivel de stock
    */
   static calculateStockLevel(cantidadActual, cantidadMinima) {
     if (cantidadActual <= cantidadMinima) {
@@ -357,9 +316,6 @@ class Stock {
 
   /**
    * Calcular porcentaje de stock
-   * @param {number} cantidadActual - Cantidad actual
-   * @param {number} cantidadMinima - Cantidad mínima (como base 100%)
-   * @returns {number} Porcentaje
    */
   static calculateStockPercentage(cantidadActual, cantidadMinima) {
     if (cantidadMinima === 0) return 100;
@@ -368,8 +324,6 @@ class Stock {
 
   /**
    * Obtener acción recomendada basada en nivel de stock
-   * @param {Object} stockItem - Item de stock
-   * @returns {string} Acción recomendada
    */
   static getRecommendedAction(stockItem) {
     switch (stockItem.nivel_stock) {
@@ -386,8 +340,6 @@ class Stock {
 
   /**
    * Estimar días restantes de stock (basado en consumo promedio)
-   * @param {Object} stockItem - Item de stock
-   * @returns {number|null} Días estimados o null si no se puede calcular
    */
   static estimateDaysRemaining(stockItem) {
     // Esta es una estimación básica
@@ -401,9 +353,6 @@ class Stock {
 
   /**
    * Generar alertas basadas en cambios de stock
-   * @param {Object} stockNuevo - Stock después del cambio
-   * @param {number} cantidadAnterior - Cantidad anterior
-   * @returns {Array} Lista de alertas
    */
   static generateAlerts(stockNuevo, cantidadAnterior) {
     const alertas = [];
@@ -457,7 +406,6 @@ class Stock {
 
   /**
    * Obtener resumen de inventario
-   * @returns {Object} Resumen del inventario
    */
   static async getInventorySummary() {
     try {
@@ -492,9 +440,5 @@ class Stock {
     }
   }
 }
-
-// ==========================================
-// EXPORT
-// ==========================================
 
 module.exports = Stock;

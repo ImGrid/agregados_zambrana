@@ -1,10 +1,3 @@
-// src/utils/responseHelper.js - Respuestas Estandarizadas de API
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
-// ==========================================
-// RESPUESTAS DE ÉXITO
-// ==========================================
-
 /**
  * Respuesta exitosa estándar
  */
@@ -56,10 +49,6 @@ const noContent = (res) => {
   return res.status(204).send();
 };
 
-// ==========================================
-// RESPUESTAS CON PAGINACIÓN
-// ==========================================
-
 /**
  * Respuesta con paginación
  */
@@ -104,10 +93,6 @@ const createPagination = (page, limit, total) => {
     hasPrevious: pageNum > 1,
   };
 };
-
-// ==========================================
-// RESPUESTAS DE ERROR
-// ==========================================
 
 /**
  * Error de validación (400)
@@ -222,10 +207,6 @@ const serverError = (res, message = "Error interno del servidor") => {
   return res.status(500).json(response);
 };
 
-// ==========================================
-// RESPUESTAS ESPECÍFICAS DEL DOMINIO
-// ==========================================
-
 /**
  * Respuesta de login exitoso
  */
@@ -317,10 +298,6 @@ const vehicleAssigned = (res, assignmentData) => {
   return res.status(200).json(response);
 };
 
-// ==========================================
-// RESPUESTAS DE DASHBOARD/ESTADÍSTICAS
-// ==========================================
-
 /**
  * Respuesta de estadísticas del dashboard
  */
@@ -338,10 +315,6 @@ const dashboardStats = (res, stats, userRole) => {
 
   return res.status(200).json(response);
 };
-
-// ==========================================
-// UTILIDADES
-// ==========================================
 
 /**
  * Formatear datos de usuario (remover información sensible)
@@ -389,10 +362,6 @@ const healthCheck = (res, status = "OK", details = {}) => {
   return res.status(status === "OK" ? 200 : 503).json(response);
 };
 
-// ==========================================
-// MIDDLEWARE HELPER
-// ==========================================
-
 /**
  * Middleware para agregar helpers de respuesta a res
  */
@@ -416,10 +385,6 @@ const addResponseHelpers = (req, res, next) => {
 
   next();
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Respuestas de éxito

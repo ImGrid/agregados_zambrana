@@ -1,17 +1,8 @@
-// src/utils/database.js - Funciones Helper para PostgreSQL
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const { pool, query } = require("../config/database");
 const logger = require("./logger");
 
-// ==========================================
-// FUNCIONES HELPER DE CONSULTAS
-// ==========================================
-
 /**
  * Ejecutar transacción con rollback automático en caso de error
- * @param {Function} transactionCallback - Función que ejecuta las queries
- * @returns {*} Resultado de la transacción
  */
 const executeTransaction = async (transactionCallback) => {
   const client = await pool.connect();
@@ -37,11 +28,6 @@ const executeTransaction = async (transactionCallback) => {
 
 /**
  * Ejecutar query con paginación
- * @param {string} baseQuery - Query base sin LIMIT/OFFSET
- * @param {Array} params - Parámetros de la query
- * @param {number} page - Número de página (1-based)
- * @param {number} limit - Elementos por página
- * @returns {Object} Resultado con datos y metadatos de paginación
  */
 const executePagedQuery = async (
   baseQuery,
@@ -92,8 +78,6 @@ const executePagedQuery = async (
 
 /**
  * Ejecutar múltiples queries en paralelo de forma segura
- * @param {Array} queries - Array de objetos {sql, params}
- * @returns {Array} Array de resultados
  */
 const executeParallelQueries = async (queries) => {
   try {
@@ -119,14 +103,8 @@ const executeParallelQueries = async (queries) => {
   }
 };
 
-// ==========================================
-// FUNCIONES DE VALIDACIÓN DE BD
-// ==========================================
-
 /**
  * Verificar si una tabla existe
- * @param {string} tableName - Nombre de la tabla
- * @returns {boolean} True si la tabla existe
  */
 const tableExists = async (tableName) => {
   try {
@@ -153,10 +131,6 @@ const tableExists = async (tableName) => {
 
 /**
  * Verificar si un registro existe en una tabla
- * @param {string} tableName - Nombre de la tabla
- * @param {string} columnName - Nombre de la columna
- * @param {*} value - Valor a buscar
- * @returns {boolean} True si el registro existe
  */
 const recordExists = async (tableName, columnName, value) => {
   try {
@@ -182,8 +156,6 @@ const recordExists = async (tableName, columnName, value) => {
 
 /**
  * Obtener información del esquema de una tabla
- * @param {string} tableName - Nombre de la tabla
- * @returns {Array} Información de las columnas
  */
 const getTableSchema = async (tableName) => {
   try {
@@ -213,13 +185,8 @@ const getTableSchema = async (tableName) => {
   }
 };
 
-// ==========================================
-// FUNCIONES DE ANÁLISIS Y ESTADÍSTICAS
-// ==========================================
-
 /**
  * Obtener estadísticas generales de la base de datos
- * @returns {Object} Estadísticas de la BD
  */
 const getDatabaseStats = async () => {
   try {
@@ -255,9 +222,6 @@ const getDatabaseStats = async () => {
 
 /**
  * Ejecutar función PostgreSQL optimizada y formatear resultado
- * @param {string} functionName - Nombre de la función
- * @param {Array} params - Parámetros de la función
- * @returns {*} Resultado de la función
  */
 const callPostgreSQLFunction = async (functionName, params = []) => {
   try {
@@ -281,13 +245,8 @@ const callPostgreSQLFunction = async (functionName, params = []) => {
   }
 };
 
-// ==========================================
-// FUNCIONES DE BACKUP Y MANTENIMIENTO
-// ==========================================
-
 /**
  * Limpiar conexiones inactivas (solo para desarrollo)
- * @returns {number} Número de conexiones cerradas
  */
 const cleanupIdleConnections = async () => {
   if (process.env.NODE_ENV === "production") {
@@ -316,8 +275,6 @@ const cleanupIdleConnections = async () => {
 
 /**
  * Obtener consultas lentas recientes
- * @param {number} limit - Límite de consultas a retornar
- * @returns {Array} Lista de consultas lentas
  */
 const getSlowQueries = async (limit = 10) => {
   try {
@@ -347,13 +304,8 @@ const getSlowQueries = async (limit = 10) => {
   }
 };
 
-// ==========================================
-// FUNCIONES DE UTILIDAD ESPECÍFICAS DEL DOMINIO
-// ==========================================
-
 /**
  * Verificar integridad de datos críticos
- * @returns {Object} Resultado de verificación
  */
 const verifyDataIntegrity = async () => {
   try {
@@ -432,7 +384,6 @@ const verifyDataIntegrity = async () => {
 
 /**
  * Generar reporte de uso de la base de datos
- * @returns {Object} Reporte de uso
  */
 const generateUsageReport = async () => {
   try {
@@ -485,10 +436,6 @@ const generateUsageReport = async () => {
     throw error;
   }
 };
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   // Funciones de transacciones y consultas

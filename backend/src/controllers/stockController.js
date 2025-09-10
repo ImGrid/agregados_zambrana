@@ -1,6 +1,3 @@
-// src/controllers/stockController.js - Controller de Stock e Inventario
-// Sistema de Tracking Vehicular - Agregados Zambrana
-
 const Stock = require("../models/Stock");
 const {
   success,
@@ -18,10 +15,6 @@ const {
 } = require("../middleware/errorHandler");
 const { validateQuantity } = require("../utils/validation");
 const logger = require("../utils/logger");
-
-// ==========================================
-// CONTROLLERS DE STOCK
-// ==========================================
 
 /**
  * Listar inventario completo con alertas
@@ -376,10 +369,6 @@ const incrementStock = asyncHandler(async (req, res) => {
     throw error;
   }
 });
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   getInventario,
